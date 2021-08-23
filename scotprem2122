@@ -3,12 +3,10 @@ import pandas as pd
 import numpy as np
 import streamlit as st
 import matplotlib.pyplot as plt
-from highlight_text import ax_text, fig_text
 from adjustText import adjust_text
 import matplotlib.patches as patches
 import requests
 from bs4 import BeautifulSoup
-import pandas as pd
 import re
 
 url = 'https://fbref.com/en/comps/40/stats/Scottish-Premiership-Stats#stats_standard'
