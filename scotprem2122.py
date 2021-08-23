@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from adjustText import adjust_text
 import matplotlib.patches as patches
 import requests
+import bs4
 from bs4 import BeautifulSoup
 import re
 
