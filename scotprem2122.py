@@ -170,7 +170,7 @@ ax.add_patch(rect)
     
 # add x-label and y-label
 ax.set_xlabel(
-    var1, color=textcolor,
+    "Age", color=textcolor,
     fontsize=18, fontfamily=font
 )
 ax.set_ylabel(
