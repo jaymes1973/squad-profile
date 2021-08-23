@@ -1,0 +1,7 @@
+pandas==1.0.5
+numpy==1.19.0
+matplotlib==3.4.2
+streamlit==0.86.0
+mplsoccer==1.0.5
+requests==2.24.0
+adjustText==0.7.3
