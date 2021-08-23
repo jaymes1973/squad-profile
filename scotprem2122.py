@@ -87,7 +87,7 @@ team_choice = st.sidebar.selectbox(
     "Select a team:", teams, index=3)
 af=af.loc[(af['squad'] == team_choice)]
 
-fig, ax = plt.subplots(figsize=(16,12),dpi=80)
+fig, ax = plt.subplots(figsize=(12,9),dpi=80)
 
 var1='age'
 var2='minutes'
