@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 from adjustText import adjust_text
 import matplotlib.patches as patches
 import requests
-import bs4
 from bs4 import BeautifulSoup
 import re
 
@@ -44,6 +43,9 @@ for row in rows_tb:
 
 dfplayer = pd.DataFrame.from_dict(pre_df)
 
+dfteam= pd.read_html(url)[0]
+dfteam = dfteam.droplevel(0, axis=1)
+
 bgcolor='white'
 color1='blue'
 scolor='grey'
@@ -53,9 +55,6 @@ font='Aerial'
 
 # Data import & columns
 af=dfplayer
-#af = af.droplevel(0, axis=1)
-#af = af[af.Player != 'Player']
-#af = af[af['Age'].notna()]
 af["minutes"] = pd.to_numeric(af["minutes"])
 
 #Format Age
@@ -74,6 +73,33 @@ af['Age Days'] = pd.to_numeric(age_days)
 af['Age Days'] = af['Age Days']/365
 af['age']=af['Age Years']+af['Age Days']
 
+def age_mins_25(af):
+    if af['age']<=25:
+        val=af.age*af.minutes
+    else:
+        val=0
+    return val
+        
+af["Mins aged Under 25"]=pd.to_numeric(af.apply(age_mins_25,axis=1))
+
+def age_mins_25_29(af):
+    if af['age']>25 and af['age']<29:
+        val=af.age*af.minutes
+    else:
+        val=0
+    return val
+        
+af["Mins aged 25 to 29"]=pd.to_numeric(af.apply(age_mins_25_29,axis=1))
+
+def age_mins_29(af):
+    if af['age']>=29:
+        val=af.age*af.minutes
+    else:
+        val=0
+    return val
+        
+af["Mins aged Over 29"]=pd.to_numeric(af.apply(age_mins_29,axis=1))
+
 #Format Name
 player_name =[]
 for name in af['player']:
@@ -81,11 +107,44 @@ for name in af['player']:
 
 af['player'] = player_name
 
+dftable=pd.DataFrame()
+dftable['team']=dfteam['Squad']
+dftable['Players used']=dfteam['# Pl']
+dftable['Avg Squad Age']=dfteam['Age']
+dftable['Mins Under 25']=np.nan#
+dftable['Mins aged 25 to 29']=np.nan#
+dftable['Mins aged Over 29']=np.nan#
+#dftable['Team mins']=np.nan#
+
+clubs = list(dftable['team'].drop_duplicates())
+
+#for clubs in dftable.team:
+ #   hold_af=dfteam.loc[(dfteam['Squad'] == clubs)]
+  #  dftable.at[dftable['team']==clubs, 'Team mins'] = hold_af["Min"]*11
+
+for clubs in dftable.team:
+    hold_af=af.loc[(af['squad'] == clubs)]
+    dftable.at[dftable['team']==clubs, 'Mins Under 25'] = hold_af["Mins aged Under 25"].sum()
+    
+for clubs in dftable.team:
+    hold_af=af.loc[(af['squad'] == clubs)]
+    dftable.at[dftable['team']==clubs, 'Mins aged 25 to 29'] = hold_af["Mins aged 25 to 29"].sum()
+
+for clubs in dftable.team:
+    hold_af=af.loc[(af['squad'] == clubs)]
+    dftable.at[dftable['team']==clubs, 'Mins aged Over 29'] = hold_af["Mins aged Over 29"].sum()
+
+
+
 teams = list(af['squad'].drop_duplicates())
 teams=sorted(teams)
 team_choice = st.sidebar.selectbox(
     "Select a team:", teams, index=3)
 af=af.loc[(af['squad'] == team_choice)]
+dfteam1=dfteam.loc[(dfteam['Squad']== team_choice)]
+
+
+st.title('Squad Profile')
 
 fig, ax = plt.subplots(figsize=(12,9),dpi=80)
 
@@ -95,30 +154,22 @@ var2='minutes'
 x1 = af[var1]
 y1 = af[var2]
 
+median = af['age'].median()
+max_mins =dfteam1['Min'].max()
+
+top_p= max_mins*0.6
+bottom_p= max_mins*0.4
+middle_p =max_mins*0.5
+
+min_age =af['age'].min()
+max_age =af['age'].max()
+
 plt.scatter(x1, y1, color=scolor,edgecolor='black', s=100,zorder=4)
 
-#players=['P. Hannola']
 players=af['player']
-
 
 # set the background color for the axes
 ax.set_facecolor(bgcolor)
-
-# iterate the dataframe
-#for _, row_val in af.iterrows():
-    
- #   if row_val["Player"] in players:
-  #      # specify the values
-   #     alpha, s, ec = 1, 100, color1
-
-    #else:
-     #   # specify the values
-      #  alpha, s, ec = 0.15, 100, color1
-        
- #   plt.scatter(
-  #      row_val[var1], row_val[var2],
-   #     s, hatch=5*"/", edgecolor=bgcolor, fc=color1, alpha=alpha, zorder=4
-    #)
 
 # player names with their coordinate locations   
 
@@ -144,33 +195,16 @@ adjust_text(
     force_points=(0, 0)
 )
 
-median = af['age'].median()
-max_mins =af['minutes'].max()
-
-#ax.plot([median,median],[0,max_mins],lw=median*2,color=scolor,zorder=3,alpha=0.5)
-
-top_p= max_mins*0.65
-bottom_p= max_mins*0.25
-middle_p =max_mins*0.5
-
-min_age =af['age'].min()
-max_age =af['age'].max()
-
-rect=patches.Rectangle ((17,top_p),9,max_mins-top_p,color='green',alpha=0.5,hatch="\\")
+rect=patches.Rectangle ((16,top_p),9,max_mins-top_p,color='green',alpha=0.5,hatch="\\")
 ax.add_patch(rect)
 
-rect=patches.Rectangle ((28,0),max_age-28,top_p,color='red',alpha=0.5,hatch="\\")
+rect=patches.Rectangle ((28,0),12,bottom_p,color='red',alpha=0.5,hatch="\\")
 ax.add_patch(rect)
 
-#ax.plot([min_age,max_age],[top_p,top_p],lw=2,color=scolor,zorder=3,alpha=0.5)
-#ax.plot([min_age,max_age],[bottom_p,bottom_p],lw=2,color=scolor,zorder=3,alpha=0.5)
-
-#plt.text(x=max_age*0.95, y=top_p*1.15, s="Core\nPlayers", fontsize=16)
-#plt.text(x=min_age*0.95, y=bottom_p*0.5, s="Peripheral\nPlayers", fontsize=16)
     
 # add x-label and y-label
 ax.set_xlabel(
-    "Age", color=textcolor,
+    var1, color=textcolor,
     fontsize=18, fontfamily=font
 )
 ax.set_ylabel(
@@ -180,5 +214,10 @@ ax.set_ylabel(
 
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
+ax.set_xlim(16, 40)
+ax.set_ylim(0, max_mins+5)
 
 st.pyplot(fig)
+
+st.dataframe(dftable.style.format({"Avg Age":"{:.2f}","Mins Under 25":"{:.2f}","Mins aged 25 to 29":"{:.2f}"
+                                   ,"Mins aged Over 29":"{:.2f}"}))
