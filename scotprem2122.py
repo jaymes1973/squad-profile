@@ -111,9 +111,9 @@ dftable=pd.DataFrame()
 dftable['team']=dfteam['Squad']
 dftable['Players used']=dfteam['# Pl']
 dftable['Avg Squad Age']=dfteam['Age']
-dftable['Mins Under 25']=np.nan#
-dftable['Mins aged 25 to 29']=np.nan#
-dftable['Mins aged Over 29']=np.nan#
+dftable['Mins X Under 25']=np.nan#
+dftable['Mins X 25 to 29']=np.nan#
+dftable['Mins X Over 29']=np.nan#
 #dftable['Team mins']=np.nan#
 
 clubs = list(dftable['team'].drop_duplicates())
@@ -124,15 +124,15 @@ clubs = list(dftable['team'].drop_duplicates())
 
 for clubs in dftable.team:
     hold_af=af.loc[(af['squad'] == clubs)]
-    dftable.at[dftable['team']==clubs, 'Mins Under 25'] = hold_af["Mins aged Under 25"].sum()
+    dftable.at[dftable['team']==clubs, 'Mins X Under 25'] = hold_af["Mins aged Under 25"].sum()
     
 for clubs in dftable.team:
     hold_af=af.loc[(af['squad'] == clubs)]
-    dftable.at[dftable['team']==clubs, 'Mins aged 25 to 29'] = hold_af["Mins aged 25 to 29"].sum()
+    dftable.at[dftable['team']==clubs, 'Mins X 25 to 29'] = hold_af["Mins aged 25 to 29"].sum()
 
 for clubs in dftable.team:
     hold_af=af.loc[(af['squad'] == clubs)]
-    dftable.at[dftable['team']==clubs, 'Mins aged Over 29'] = hold_af["Mins aged Over 29"].sum()
+    dftable.at[dftable['team']==clubs, 'Mins X Over 29'] = hold_af["Mins aged Over 29"].sum()
 
 
 
@@ -219,5 +219,5 @@ ax.set_ylim(0, max_mins+5)
 
 st.pyplot(fig)
 
-st.dataframe(dftable.style.format({"Avg Age":"{:.2f}","Mins Under 25":"{:.2f}","Mins aged 25 to 29":"{:.2f}"
-                                   ,"Mins aged Over 29":"{:.2f}"}))
+st.dataframe(dftable.style.format({"Avg Age":"{:.2f}","Mins X Under 25":"{:.2f}","Mins X 25 to 29":"{:.2f}"
+                                   ,"Mins X Over 29":"{:.2f}"}))
