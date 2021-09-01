@@ -9,6 +9,11 @@ import requests
 from bs4 import BeautifulSoup
 import re
 
+st.set_page_config(
+     page_title="Squad Profile",
+     layout="wide",
+     )
+
 url = 'https://fbref.com/en/comps/40/stats/Scottish-Premiership-Stats#stats_standard'
 
 res = requests.get(url)
@@ -219,5 +224,7 @@ ax.set_ylim(0, max_mins+5)
 
 st.pyplot(fig)
 
-st.dataframe(dftable.style.format({"Avg Age":"{:.2f}","Mins X Under 25":"{:.2f}","Mins X 25 to 29":"{:.2f}"
-                                   ,"Mins X Over 29":"{:.2f}"}))
+dftable.columns=["Team","No. of\nPlayers Used","Avg\nSquad age","Age x Mins\nUnder 25","Age x Mins\n25 to 29","Age x Mins\nOver 29"]
+
+st.dataframe(dftable.style.format({"Avg\nSquad age":"{:.2f}","Age x Mins\nUnder 25":"{:.2f}","Age x Mins\n25 to 29":"{:.2f}",
+                                   "Age x Mins\nOver 29":"{:.2f}"}))
